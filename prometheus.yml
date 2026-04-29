@@ -1,0 +1,15 @@
+# prometheus.yml — Prometheus scrape configuration
+#
+# Prometheus pulls metrics by HTTP GET-ing /metrics on each target.
+# "securewatch-app" is the Docker Compose service name, so Docker's
+# internal DNS resolves it automatically — no IP addresses needed.
+
+global:
+  scrape_interval: 15s        # how often to scrape
+  evaluation_interval: 15s    # how often to evaluate alerting rules
+
+scrape_configs:
+  - job_name: "securewatch"
+    static_configs:
+      - targets: ["securewatch-app:8000"]
+    metrics_path: "/metrics"

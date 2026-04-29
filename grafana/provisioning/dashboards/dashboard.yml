@@ -1,0 +1,14 @@
+# Grafana dashboard provisioning — tells Grafana where to load dashboard JSON.
+# The "path" is where we mount our securewatch.json inside the container.
+
+apiVersion: 1
+
+providers:
+  - name: SecureWatch
+    orgId: 1
+    folder: SecureWatch
+    type: file
+    disableDeletion: false    # allow UI edits (useful during demos)
+    updateIntervalSeconds: 10 # re-read the file every 10s (hot reload)
+    options:
+      path: /var/lib/grafana/dashboards

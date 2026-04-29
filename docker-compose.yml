@@ -1,0 +1,68 @@
+version: "3.9"
+
+# SecureWatch — three services, zero manual setup.
+#
+#  securewatch-app  →  FastAPI + prometheus_client  (port 8000)
+#  prometheus       →  scrapes /metrics every 15s   (port 9090)
+#  grafana          →  auto-provisioned dashboards   (port 3000)
+#
+# Run with: docker-compose up --build
+
+services:
+
+  # ── 1. SecureWatch FastAPI metrics server ─────────────────────────────────
+  securewatch-app:
+    build: .
+    container_name: securewatch-app
+    ports:
+      - "8000:8000"
+    # Restart automatically if it crashes (e.g. on first cold start)
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8000/healthz')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── 2. Prometheus ─────────────────────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:v2.51.2
+    container_name: securewatch-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      # Mount our scrape config into the official config location
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.enable-lifecycle"   # allows hot-reload via /-/reload
+    depends_on:
+      securewatch-app:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ── 3. Grafana ────────────────────────────────────────────────────────────
+  grafana:
+    image: grafana/grafana:10.4.2
+    container_name: securewatch-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      # Default admin credentials — change in production!
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: securewatch
+      # Disable the "change password" prompt on first login
+      GF_SECURITY_DISABLE_INITIAL_ADMIN_PASSWORD_HINT: "true"
+      # Allow anonymous read access so you can share the link in demos
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+    volumes:
+      # Provisioning: Grafana reads these folders on startup
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      # Pre-built dashboard JSON
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+    restart: unless-stopped
