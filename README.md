@@ -6,6 +6,47 @@ and a live Grafana dashboard.
 
 ---
 
+## Demo Video
+
+> A short walkthrough of the application starting up and the dashboard loading live.
+
+<!-- 
+  REPLACE the src below with your actual video file path or hosted URL.
+  Example (local file): <source src="demo/securewatch-demo.mp4" type="video/mp4">
+  Example (YouTube embed): use an <iframe> instead (see bottom of this section).
+-->
+
+<video width="100%" controls>
+  <source src="demo/securewatch-demo.mp4" type="video/mp4">
+  Your browser does not support the video tag. <a href="demo/securewatch-demo.mp4">Download the demo video</a>.
+</video>
+
+---
+
+## Screenshots
+
+### Dashboard Overview — All Three Stat Panels
+![Dashboard Overview](demo/01-dashboard-overview.png)
+*The main SecureWatch dashboard showing brute force, off-hours, and IAM change counters immediately after startup.*
+
+### Brute Force Rate Graph
+![Brute Force Rate](demo/02-brute-force-rate.png)
+*Time-series graph showing rate of brute-force detection spikes per minute, broken down by attacker IP.*
+
+### IAM Changes Bar Gauge
+![IAM Changes](demo/03-iam-changes-gauge.png)
+*Horizontal bar gauge showing which IAM write actions have been triggered (e.g. AttachUserPolicy, CreateUser).*
+
+### Raw Prometheus Metrics Endpoint
+![Prometheus Metrics](demo/04-prometheus-metrics.png)
+*Raw /metrics output at http://localhost:8000/metrics in Prometheus text exposition format.*
+
+### Prometheus Query — brute_force_attempts_total
+![Prometheus Query](demo/05-prometheus-query.png)
+*PromQL query result at http://localhost:9090 showing the brute_force_attempts_total counter over time.*
+
+---
+
 ## Architecture
 
 ```
